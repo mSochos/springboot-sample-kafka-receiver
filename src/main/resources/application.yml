@@ -1,0 +1,45 @@
+server:
+  port: 8156
+
+#Spring boot security
+management:
+    security:
+      enabled: false
+      roles: ACTUATOR
+    basic:
+      enabled: false
+    context-path: /management
+
+spring:
+  application:
+    name: sample_kafka_consumer
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          auto-create-topics: false
+      bindings:
+        input-binding:
+          destination: <Event hub name>
+          binder: kafka-message
+          #group: xxx
+
+      binders:
+        kafka-message:
+          type: kafka
+          environment:
+            spring:
+              kafka:
+                bootstrap-servers: <namespace name>.servicebus.windows.net:9093
+                properties:
+                  acks: all
+                  retries: 1
+                  batch.size: 16384
+                  linger.ms: 0
+                  security:
+                    protocol: SASL_SSL
+                  sasl:
+                    mechanism: PLAIN
+                    jaas:
+                      config: org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="<Endpoint from sas key in event hub>";
